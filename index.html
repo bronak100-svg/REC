@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ד"ר ברונק</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700&family=Secular+One&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    font-family:'Rubik',sans-serif;direction:rtl;
+    background:radial-gradient(ellipse at top right,#f5f0e8 0%,#ede8dc 25%,#faf7f2 50%,#e8e0d0 75%,#f0ebe0 100%);
+    min-height:100vh;padding:40px 20px;display:flex;flex-direction:column;align-items:center;
+  }
+  .container{max-width:900px;width:100%}
+  h1{font-family:'Secular One',sans-serif;font-size:3em;color:#3d2b1f;text-align:center;
+    text-shadow:2px 2px 0 rgba(255,255,255,0.8),4px 4px 12px rgba(0,0,0,.08);margin-bottom:10px;letter-spacing:2px}
+  .subtitle{color:#6b4f3a;font-size:1.2em;font-weight:300;text-align:center;
+    text-shadow:none;margin-bottom:36px}
+  .card{background:rgba(255,255,255,.97);border-radius:28px;padding:40px;
+    box-shadow:0 16px 48px rgba(0,0,0,.2);margin-bottom:24px}
+
+  .tmpl-section{background:linear-gradient(135deg,#fff9e6,#ffe8cc);
+    border:3px solid #FFA07A;border-radius:18px;padding:20px;margin-bottom:26px}
+  .tmpl-header{display:flex;justify-content:space-between;align-items:center;
+    flex-wrap:wrap;gap:10px;margin-bottom:14px}
+  .tmpl-header span{font-weight:700}
+  .tmpl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;min-height:50px}
+  .tmpl-empty{text-align:center;color:#aaa;font-style:italic;padding:14px;grid-column:1/-1}
+  .tmpl-card{background:#fff;border:2px solid #FFA07A;border-radius:14px;padding:14px}
+  .tmpl-name{font-weight:700;color:#FF6B9D;margin-bottom:5px}
+  .tmpl-preview{font-size:.85em;color:#666;overflow:hidden;text-overflow:ellipsis;
+    white-space:nowrap;margin-bottom:6px}
+  .tmpl-date{font-size:.75em;color:#bbb;margin-bottom:10px}
+  .tmpl-actions{display:flex;gap:8px}
+
+  .label{font-weight:700;font-size:1em;margin-bottom:10px;display:flex;align-items:center;gap:7px}
+  
+  .input-section{position:relative;margin-bottom:22px}
+  textarea{width:100%;min-height:180px;padding:16px;border:3px solid #FF6B9D;
+    border-radius:16px;font-family:'Rubik',sans-serif;font-size:1.05em;resize:vertical;
+    direction:rtl;outline:none;line-height:1.7}
+  textarea:focus{box-shadow:0 0 0 4px rgba(255,107,157,.2)}
+  
+  .rec-controls{display:flex;gap:8px;margin-top:10px}
+  .rec-btn{padding:12px 24px;border:none;border-radius:50px;font-family:'Rubik',sans-serif;
+    font-size:1em;font-weight:700;cursor:pointer;transition:all .25s;
+    box-shadow:0 2px 8px rgba(0,0,0,.12);background:linear-gradient(135deg,#667eea,#764ba2);color:#fff}
+  .rec-btn:hover{transform:scale(1.05)}
+  .rec-btn:active{transform:scale(.95)}
+  .rec-btn.recording{background:linear-gradient(135deg,#ff6b6b,#c92a2a);animation:pulse-rec 1.5s infinite}
+  .rec-btn.paused{background:linear-gradient(135deg,#ffa500,#ff8c00)}
+  
+  .output{background:linear-gradient(135deg,#fff5f8,#ffe8f0);border:3px solid #FF6B9D;
+    border-radius:16px;padding:16px;min-height:160px;font-size:1.05em;line-height:1.8;
+    color:#2d3436;white-space:pre-wrap;word-break:break-word}
+  .output.error{border-color:#ff7675;background:#fff5f5;color:#c0392b}
+  .ph{color:#bbb}
+
+  .btn-group{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin:22px 0}
+  button{padding:14px 30px;border:none;border-radius:50px;font-family:'Rubik',sans-serif;
+    font-size:1em;font-weight:700;cursor:pointer;transition:all .25s;
+    box-shadow:0 2px 8px rgba(0,0,0,.12)}
+  button:active{transform:scale(.96)}
+  .btn-fix{background:linear-gradient(135deg,#FF6B9D,#C44569);color:#fff;min-width:170px;
+    animation:pulse 2s infinite}
+  .btn-fix:disabled{opacity:.7;cursor:not-allowed;animation:none}
+  .btn-copy{background:linear-gradient(135deg,#FFA07A,#FFD700);color:#2d3436}
+  .btn-copy.copied{background:linear-gradient(135deg,#00b894,#00cec9);color:#fff}
+  .btn-clear{background:linear-gradient(135deg,#dfe6e9,#b2bec3);color:#2d3436}
+  .btn-st{background:linear-gradient(135deg,#FFD700,#FFA07A);color:#2d3436;
+    padding:10px 22px;font-size:.95em}
+  .btn-use,.btn-del{flex:1;padding:8px;border-radius:8px;font-size:.85em;box-shadow:none}
+  .btn-use{background:linear-gradient(135deg,#74b9ff,#0984e3);color:#fff}
+  .btn-del{background:linear-gradient(135deg,#ff7675,#d63031);color:#fff}
+
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px}
+  .stat{background:linear-gradient(135deg,rgba(255,255,255,.9),rgba(255,240,246,.9));
+    border-radius:16px;padding:18px 10px;text-align:center}
+  .sn{display:block;font-size:2.1em;font-weight:700;color:#FF6B9D;margin-bottom:3px}
+  .sl{font-size:.88em;color:#555}
+
+  #tip{position:fixed;top:18px;left:50%;transform:translateX(-50%);background:#2d3436;
+    color:#fff;padding:10px 22px;border-radius:10px;font-size:.93em;z-index:9999;
+    box-shadow:0 4px 16px rgba(0,0,0,.3);opacity:0;transition:opacity .3s;pointer-events:none}
+  #tip.show{opacity:1}
+
+  .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);
+    z-index:10000;justify-content:center;align-items:center;backdrop-filter:blur(4px)}
+  .modal.show{display:flex}
+  .mbox{background:#fff;border-radius:22px;padding:36px;max-width:460px;width:90%;
+    box-shadow:0 16px 48px rgba(0,0,0,.3)}
+  .mtitle{font-size:1.5em;font-weight:700;color:#FF6B9D;text-align:center;margin-bottom:20px}
+  .minput{width:100%;padding:12px 16px;border:3px solid #FFA07A;border-radius:12px;
+    font-family:'Rubik',sans-serif;font-size:1.05em;margin-bottom:20px;
+    direction:rtl;outline:none;box-sizing:border-box}
+  .minput:focus{border-color:#FF6B9D}
+  .mbtns{display:flex;gap:12px}
+  .mbtns button{flex:1;padding:13px}
+  .msave{background:linear-gradient(135deg,#FF6B9D,#C44569);color:#fff}
+  .mcancel{background:linear-gradient(135deg,#dfe6e9,#b2bec3);color:#2d3436}
+
+  footer{color:#9c7b5e;font-size:.88em;text-align:center;margin-top:8px}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,107,157,.7)}50%{box-shadow:0 0 0 12px rgba(255,107,157,0)}}
+  @keyframes pulse-rec{0%,100%{box-shadow:0 0 0 0 rgba(255,107,107,.7)}50%{box-shadow:0 0 0 10px rgba(255,107,107,0)}}
+  @media(max-width:600px){h1{font-size:2.2em}.card{padding:22px}
+    .btn-group{flex-direction:column}.btn-group button{width:100%}}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>&#x1FA7A; ד"ר ברונק &#x1FA7A;</h1>
+  <p class="subtitle">תיקון שגיאות הקלדה באמצעות בינה מלאכותית</p>
+  <div class="card">
+
+    <div class="tmpl-section">
+      <div class="tmpl-header">
+        <span>&#128193; התבניות שלי:</span>
+        <button class="btn-st" id="openModal">&#128190; שמור כתבנית</button>
+      </div>
+      <div class="tmpl-grid" id="tGrid"></div>
+    </div>
+
+    <div class="input-section">
+      <div class="label">&#128221; הטקסט שלך:</div>
+      <textarea id="inp" placeholder="הדבק או הקלד טקסט בעברית עם שגיאות הקלדה..."></textarea>
+      <div class="rec-controls">
+        <button class="rec-btn" id="recBtn">🎤 הקלט</button>
+        <button class="rec-btn" id="pauseBtn" style="display:none">⏸ השהה</button>
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn-fix" id="fixBtn">תקן טקסט</button>
+      <button class="btn-copy" id="copyBtn">&#128203; העתק</button>
+      <button class="btn-clear" id="clearBtn">&#128465; נקה</button>
+    </div>
+
+    <div style="margin-bottom:22px">
+      <div class="label">&#9989; טקסט מתוקן:</div>
+      <div class="output" id="out"><span class="ph">הטקסט המתוקן יופיע כאן...</span></div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><span class="sn" id="wc">0</span><span class="sl">מילים</span></div>
+      <div class="stat"><span class="sn" id="cc">0</span><span class="sl">תווים</span></div>
+      <div class="stat"><span class="sn" id="fc">0</span><span class="sl">תיקונים</span></div>
+    </div>
+
+  </div>
+  <footer>&#128157; נוצר עם אהבה וטכנולוגיית AI מתקדמת</footer>
+</div>
+
+<div id="tip"></div>
+
+<div class="modal" id="modal">
+  <div class="mbox">
+    <div class="mtitle">&#128190; שמור תבנית</div>
+    <input class="minput" id="tName" type="text" placeholder="שם לתבנית (למשל: מייל פתיחה)"/>
+    <div class="mbtns">
+      <button class="msave" id="doSave">שמור</button>
+      <button class="mcancel" id="doCancel">ביטול</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var SK='hebrewTemplates', tmpls=[], fixes=0, busy=false;
+try{tmpls=JSON.parse(localStorage.getItem(SK)||'[]');}catch(e){}
+
+var inp=document.getElementById('inp'),
+    out=document.getElementById('out'),
+    fixBtn=document.getElementById('fixBtn'),
+    cpBtn=document.getElementById('copyBtn'),
+    clBtn=document.getElementById('clearBtn'),
+    recBtn=document.getElementById('recBtn'),
+    pauseBtn=document.getElementById('pauseBtn'),
+    wc=document.getElementById('wc'),
+    cc=document.getElementById('cc'),
+    fc=document.getElementById('fc'),
+    tGrid=document.getElementById('tGrid'),
+    tip=document.getElementById('tip'),
+    modal=document.getElementById('modal'),
+    tName=document.getElementById('tName'),
+    openM=document.getElementById('openModal'),
+    doSv=document.getElementById('doSave'),
+    doCn=document.getElementById('doCancel');
+
+// Speech Recognition
+var recognition = null;
+var isRecording = false;
+var isPaused = false;
+var recordingStartPos = 0;
+
+if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+  var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SpeechRecognition();
+  recognition.lang = 'he-IL';
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  
+  recognition.onstart = function() {
+    console.log('ההקלטה התחילה');
+    isRecording = true;
+    isPaused = false;
+    recordingStartPos = inp.value.length;
+    recBtn.classList.add('recording');
+    recBtn.innerHTML = '⏹ עצור';
+    pauseBtn.style.display = 'inline-block';
+    pauseBtn.innerHTML = '⏸ השהה';
+    pauseBtn.classList.remove('paused');
+    tip2('🎤 מקליט... דבר בבקשה');
+  };
+  
+  recognition.onresult = function(event) {
+    if (isPaused) return;
+    
+    var transcript = '';
+    for (var i = 0; i < event.results.length; i++) {
+      transcript += event.results[i][0].transcript;
+    }
+    
+    var beforeRecording = inp.value.substring(0, recordingStartPos);
+    var separator = (beforeRecording && !beforeRecording.endsWith(' ') && !beforeRecording.endsWith('\n') && transcript) ? ' ' : '';
+    inp.value = beforeRecording + separator + transcript;
+    stats();
+  };
+  
+  recognition.onerror = function(event) {
+    console.log('שגיאה:', event.error);
+    if (event.error === 'not-allowed') {
+      tip2('⚠️ אין הרשאה למיקרופון');
+      stopRecording();
+    }
+  };
+  
+  recognition.onend = function() {
+    console.log('ההקלטה הסתיימה');
+    if (isRecording && !isPaused && !recognition.wasManualStop) {
+      try {
+        recognition.start();
+      } catch(e) {
+        console.log('לא ניתן להפעיל מחדש:', e);
+      }
+    } else if (recognition.wasManualStop) {
+      stopRecording();
+      tip2('✅ ההקלטה הסתיימה');
+      recognition.wasManualStop = false;
+    }
+  };
+} else {
+  recBtn.style.display = 'none';
+}
+
+function stopRecording() {
+  isRecording = false;
+  isPaused = false;
+  recBtn.classList.remove('recording', 'paused');
+  recBtn.innerHTML = '🎤 הקלט';
+  pauseBtn.style.display = 'none';
+}
+
+recBtn.onclick = async function() {
+  console.log('=== נלחץ כפתור הקלטה ===');
+  console.log('יש recognition?', !!recognition);
+  console.log('webkitSpeechRecognition קיים?', 'webkitSpeechRecognition' in window);
+  console.log('SpeechRecognition קיים?', 'SpeechRecognition' in window);
+  console.log('האם מקליט כרגע?', isRecording);
+  console.log('האתר:', window.location.protocol);
+  
+  if (!recognition) {
+    alert('הדפדפן לא תומך בהקלטה קולית. נסה להשתמש ב-Chrome, Edge או Safari');
+    tip2('⚠️ הדפדפן לא תומך בהקלטה');
+    return;
+  }
+  
+  if (isRecording) {
+    console.log('עוצר הקלטה');
+    recognition.wasManualStop = true;
+    recognition.stop();
+  } else {
+    console.log('מנסה להתחיל הקלטה...');
+    
+    // בקשת הרשאה למיקרופון קודם
+    try {
+      console.log('מבקש הרשאה למיקרופון...');
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      console.log('הרשאה ניתנה! סוגר stream...');
+      stream.getTracks().forEach(track => track.stop());
+      
+      // עכשיו מתחיל הקלטה
+      console.log('מתחיל recognition...');
+      recognition.start();
+      console.log('הקלטה התחילה בהצלחה!');
+    } catch(e) {
+      console.error('שגיאה:', e);
+      if (e.name === 'NotAllowedError') {
+        alert('❌ לא ניתנה הרשאה למיקרופון!\n\nאנא:\n1. לחץ על סמל המנעול ליד כתובת האתר\n2. אפשר גישה למיקרופון\n3. טען מחדש את הדף');
+      } else if (e.name === 'NotFoundError') {
+        alert('❌ לא נמצא מיקרופון!\n\nוודא שמיקרופון מחובר למחשב.');
+      } else {
+        alert('שגיאה: ' + e.message + '\n\n' + e.name);
+      }
+      tip2('⚠️ שגיאה: ' + e.name);
+    }
+  }
+};
+
+pauseBtn.onclick = function() {
+  if (!recognition || !isRecording) return;
+  
+  if (isPaused) {
+    isPaused = false;
+    pauseBtn.innerHTML = '⏸ השהה';
+    pauseBtn.classList.remove('paused');
+    recBtn.classList.add('recording');
+    recBtn.classList.remove('paused');
+    tip2('▶️ ההקלטה התחדשה');
+  } else {
+    isPaused = true;
+    pauseBtn.innerHTML = '▶️ המשך';
+    pauseBtn.classList.add('paused');
+    recBtn.classList.remove('recording');
+    recBtn.classList.add('paused');
+    tip2('⏸ ההקלטה הושהתה');
+  }
+};
+
+var tt;
+function tip2(m){
+  clearTimeout(tt);tip.textContent=m;tip.classList.add('show');
+  tt=setTimeout(function(){tip.classList.remove('show');},2200);
+}
+
+function stats(){
+  var t=inp.value.trim();
+  wc.textContent=t?t.split(/\s+/).length:0;
+  cc.textContent=inp.value.length;
+}
+inp.addEventListener('input',stats);
+
+function diff(a,b){
+  var wa=a.split(/\s+/),wb=b.split(/\s+/),c=0;
+  for(var i=0;i<Math.min(wa.length,wb.length);i++) if(wa[i]!==wb[i]) c++;
+  return c+Math.abs(wa.length-wb.length);
+}
+
+function getOut(){
+  if(out.querySelector('.ph')) return '';
+  return out.textContent.trim();
+}
+function setOut(t,err){
+  out.classList.toggle('error',!!err);
+  out.textContent=err?'&#9888;&#65039; '+t:t;
+}
+function clearOut(){
+  out.classList.remove('error');
+  out.innerHTML='<span class="ph">הטקסט המתוקן יופיע כאן...</span>';
+}
+
+async function doFix(){
+  var text=inp.value.trim();
+  if(!text){tip2('אנא הזן טקסט לתיקון');return;}
+  var key='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';
+  if(busy) return;
+  busy=true;fixBtn.disabled=true;fixBtn.textContent='&#9203;&#65039; מתקן...';
+  try{
+    var r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':key,
+        'anthropic-version':'2023-06-01'
+      },
+      body:JSON.stringify({
+        model:'claude-3-5-haiku-20241022',
+        max_tokens:2000,
+        messages:[{
+          role:'user',
+          content:'תקן את שגיאות ההקלדה בטקסט העברי הבא. תקן רק שגיאות הקלדה, איות ודקדוק. שמור על המבנה והפיסוק המקורי. החזר רק את הטקסט המתוקן, ללא הסברים או הערות:\n\n'+text
+        }]
+      })
+    });
+    if(!r.ok){
+      var e=await r.json().catch(function(){return{};});
+      if(r.status===401) throw new Error('מפתח API לא תקין');
+      if(r.status===403) throw new Error('אין הרשאה — בדוק את המפתח');
+      if(r.status===429) throw new Error('יותר מדי בקשות — המתן ונסה שוב');
+      throw new Error((e.error&&e.error.message)||'שגיאת שרת '+r.status);
+    }
+    var d=await r.json();
+    var fixed=d.content[0].text.trim();
+    setOut(fixed);
+    var n=diff(text,fixed);fixes+=n;fc.textContent=fixes;
+    tip2('&#10024;&#65039; תוקן! נמצאו '+n+' שגיאות');
+  }catch(err){
+    setOut(err.message||'אירעה שגיאה',true);
+    tip2('&#10060; שגיאה');
+  }finally{
+    busy=false;fixBtn.disabled=false;fixBtn.textContent='תקן טקסט';
+  }
+}
+
+async function doCopy(){
+  var t=getOut();
+  if(!t){tip2('אין טקסט להעתקה');return;}
+  try{await navigator.clipboard.writeText(t);}
+  catch(e){
+    var ta=document.createElement('textarea');
+    ta.value=t;ta.style.cssText='position:fixed;opacity:0';
+    document.body.appendChild(ta);ta.select();
+    document.execCommand('copy');document.body.removeChild(ta);
+  }
+  cpBtn.classList.add('copied');cpBtn.textContent='&#10003; הועתק!';
+  tip2('&#10003; הועתק!');
+  setTimeout(function(){cpBtn.classList.remove('copied');cpBtn.textContent='&#128203; העתק';},2000);
+}
+
+function doClear(){
+  inp.value='';clearOut();stats();tip2('&#128465;&#65039; נוקה!');
+  if (isRecording) {
+    recognition.wasManualStop = true;
+    recognition.stop();
+  }
+}
+
+function saveLS(){try{localStorage.setItem(SK,JSON.stringify(tmpls));}catch(e){}}
+
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function render(){
+  if(!tmpls.length){tGrid.innerHTML='<div class="tmpl-empty">אין תבניות שמורות. שמור טקסט כתבנית לשימוש חוזר!</div>';return;}
+  tGrid.innerHTML=tmpls.map(function(t,i){
+    return '<div class="tmpl-card">'
+      +'<div class="tmpl-name">'+esc(t.name)+'</div>'
+      +'<div class="tmpl-preview">'+esc(t.text.substring(0,50))+(t.text.length>50?'...':'')+'</div>'
+      +'<div class="tmpl-date">'+new Date(t.date).toLocaleDateString('he-IL')+'</div>'
+      +'<div class="tmpl-actions">'
+      +'<button class="btn-use" onclick="useTmpl('+i+')">השתמש</button>'
+      +'<button class="btn-del" onclick="delTmpl('+i+')">מחק</button>'
+      +'</div></div>';
+  }).join('');
+}
+
+window.useTmpl=function(i){
+  var cur=getOut();
+  setOut(cur?cur+'\n\n'+tmpls[i].text:tmpls[i].text);
+  tip2('&#10003; צורף: '+tmpls[i].name);
+};
+
+window.delTmpl=function(i){
+  if(!confirm('למחוק את התבנית "'+tmpls[i].name+'"?')) return;
+  tmpls.splice(i,1);saveLS();render();tip2('&#128465;&#65039; נמחקה');
+};
+
+openM.addEventListener('click',function(){
+  if(!getOut()){tip2('אין טקסט לשמירה');return;}
+  tName.value='';modal.classList.add('show');
+  setTimeout(function(){tName.focus();},50);
+});
+
+function realSave(){
+  var nm=tName.value.trim();
+  if(!nm){tName.style.borderColor='#d63031';setTimeout(function(){tName.style.borderColor='';},800);return;}
+  tmpls.unshift({name:nm,text:getOut(),date:new Date().toISOString()});
+  saveLS();render();modal.classList.remove('show');tip2('&#10003; נשמרה!');
+}
+
+doSv.addEventListener('click',realSave);
+doCn.addEventListener('click',function(){modal.classList.remove('show');});
+modal.addEventListener('click',function(e){if(e.target===modal) modal.classList.remove('show');});
+tName.addEventListener('keydown',function(e){if(e.key==='Enter') realSave();if(e.key==='Escape') modal.classList.remove('show');});
+inp.addEventListener('keydown',function(e){if(e.ctrlKey&&e.key==='Enter') doFix();});
+fixBtn.addEventListener('click',doFix);
+cpBtn.addEventListener('click',doCopy);
+clBtn.addEventListener('click',doClear);
+
+stats();render();
+
+// בדיקה בטעינת הדף
+console.log('=== בדיקת תמיכה בהקלטה ===');
+console.log('webkitSpeechRecognition:', 'webkitSpeechRecognition' in window);
+console.log('SpeechRecognition:', 'SpeechRecognition' in window);
+console.log('recognition נוצר:', !!recognition);
+console.log('דפדפן:', navigator.userAgent);
+
+if (!recognition) {
+  setTimeout(function() {
+    alert('⚠️ הדפדפן לא תומך בהקלטה קולית!\n\nהשתמש באחד מהדפדפנים:\n✓ Google Chrome\n✓ Microsoft Edge\n✓ Safari (Mac/iOS)\n\n(Firefox לא תומך בהקלטה קולית)');
+  }, 1000);
+}
+</script>
+</body>
+</html>
